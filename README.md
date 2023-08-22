@@ -4,20 +4,35 @@
 
 A bootable raspberry pi image for the OpenVoice OS built and configured with NixOS.
 
+* Download latest build: https://github.com/Ramblurr/ovos-rpi-nixos/releases
 
-## Build Environment
 
-* docker > 20.10
+## Build it Yourself
 
-You can use podman as the backend, but `docker compose` is required.
+Prereqs:
 
-## Getting started
+* docker > 20.10. You can use podman as the backend, but `docker compose` is required.
+
+Configure:
+
+* Edit [`config/user-config.nix`](./config/user-config.nix) and change the variables there to customize your image.
+
+Build:
 
 ```console
 $ sudo ./run.sh
 # after some time your image will be in the current directory
-# flash it to your sd card and away you go.
 ```
+
+Run:
+
+* Flash the image `ovos-nix-sd-image-aarch64-linux.img` to an sd card using your favorite method
+* Put it in your RPI and boot
+* It will use use DHCP to connect to the network
+
+Access:
+
+* ssh ovos@<IP>
 
 
 ## Sources

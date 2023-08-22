@@ -6,8 +6,8 @@
 }: {
   imports = [
     ./rpi4
-    ./ovos
     ./user-config.nix
+    ./ovos
   ];
 
   # Overrides to https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/profiles/installation-device.nix
