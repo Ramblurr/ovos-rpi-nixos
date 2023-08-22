@@ -3,7 +3,9 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  timezone = config.time.timeZone;
+in {
   # Disable ZFS. It is problematic on the raspberry pi and anyways we don't need it.
   nixpkgs.overlays = [
     (final: super: {
@@ -218,6 +220,55 @@
       isNormalUser = true;
       extraGroups = ["wheel" "audio"];
     };
+  };
+
+  systemd.user.services.ovos-docker = {
+    description = "OVOS Docker";
+    wantedBy = ["default.target"];
+    script = ''
+      #!${pkgs.bash}/bin/bash
+      set -ex
+      REPO_URL="https://github.com/OpenVoiceOS/ovos-docker.git"
+      TARGET_DIR="/home/ovos/ovos-docker"
+      GIT=${pkgs.git}/bin/git
+
+      if [ ! -d "$TARGET_DIR" ]; then
+        $GIT clone "$REPO_URL" "$TARGET_DIR"
+      else
+        cd "$TARGET_DIR"
+        $GIT pull
+        $GIT reset --hard origin/main
+      fi
+      cat <<EOL > /home/ovos/ovos-docker/compose/.env
+      GPIO_GID=997
+      HIVEMIND_CONFIG_FOLDER=~/hivemind/config
+      HIVEMIND_SHARE_FOLDER=~/hivemind/share
+      OVOS_CONFIG_FOLDER=~/ovos/config
+      OVOS_SHARE_FOLDER=~/ovos/share
+      OVOS_USER=ovos
+      RENDER_GID=106
+      TMP_FOLDER=~/ovos/tmp
+      TZ=${timezone}
+      VERSION=alpha
+      XDG_RUNTIME_DIR=/run/user/1000
+      EOL
+      cd /home/ovos/ovos-docker/compose
+      ${pkgs.docker-client}/bin/docker compose --project-name ovos --parallel 3 pull
+      ${pkgs.docker-client}/bin/docker compose \
+        --project-name ovos \
+        --env-file .env \
+        -f docker-compose.yml \
+        -f docker-compose.skills.yml \
+        -f docker-compose.raspberrypi.yml \
+        up --detach --remove-orphans
+    '';
+    serviceConfig = {
+      WorkingDirectory = "/home/ovos";
+      KillMode = "process";
+      Type = "oneshot";
+      RemainAfterExit = "yes";
+    };
+    enable = true;
   };
   environment.sessionVariables = {
     DOCKER_HOST = "unix:///run/user/1000/podman/podman.sock";
