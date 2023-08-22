@@ -48,7 +48,7 @@ jobs:
 
       - name: Create release with artifact
         if: github.ref == 'refs/heads/main'
-        uses: ncipollo/release-action@a2e71bdd4e7dab70ca26a852f29600c98b33153e
+        uses: ncipollo/release-action@37c87f6b53fb46d40450c3cac428aa83c8d0055f
         with:
           #token: "${{ steps.generate-token.outputs.token }}"
           tag: "ovos-nix-${{ steps.vars.outputs.tag-name }}"
