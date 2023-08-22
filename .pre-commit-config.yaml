@@ -2,6 +2,12 @@
 fail_fast: false
 
 repos:
+  #- repo: https://github.com/kamadorueda/alejandra
+  #  rev: 3.0.0
+  #  hooks:
+  #    # No prerequisites
+  #    - id: alejandra
+
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.32.0
     hooks:
@@ -13,22 +19,16 @@ repos:
     rev: v4.4.0
     hooks:
       - id: trailing-whitespace
-        exclude: iot/
       - id: end-of-file-fixer
-        exclude: iot/
       - id: fix-byte-order-marker
-        exclude: iot/
       - id: mixed-line-ending
-        exclude: iot/
       - id: check-added-large-files
         args: [--maxkb=2048]
       - id: check-merge-conflict
       - id: check-executables-have-shebangs
-        exclude: iot/
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.5.4
     hooks:
       - id: remove-crlf
-        exclude: iot/
       - id: remove-tabs
-        exclude: (Makefile|Makefile.j2|iot/)
+        exclude: (Makefile)

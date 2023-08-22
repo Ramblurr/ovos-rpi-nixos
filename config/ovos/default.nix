@@ -73,21 +73,25 @@
 
     environment.systemPackages = with pkgs; [
       # dev packages, remove in the future
-      bash
-      vim
-      curl
-      wget
       jq
-      git
       python311
 
       # actual packages we need for ovos
+      git
       alsa-utils
       pipewire
       wireplumber
       pulseaudio
       pulsemixer
       docker-client # for docker compose, it'll talk to the podman socket
+
+      # friendly sysadmin tools
+      htop
+      ncdu
+      bash
+      vim
+      curl
+      wget
     ];
 
     documentation = {
