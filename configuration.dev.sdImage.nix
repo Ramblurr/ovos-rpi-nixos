@@ -4,13 +4,31 @@
   lib,
   ...
 }: {
+  imports = [
+    <nixpkgs/nixos/modules/installer/cd-dvd/sd-image-aarch64-new-kernel.nix>
+
+    # For nixpkgs cache
+    <nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
+  ];
+
+  # no zfs
+  nixpkgs.overlays = [
+    (final: super: {
+      zfs = super.zfs.overrideAttrs (_: {
+        meta.platforms = [];
+      });
+    })
+  ];
+
+  sdImage.compressImage = false;
+
   # NixOS wants to enable GRUB by default
   boot.loader.grub.enable = false;
   # Enables the generation of /boot/extlinux/extlinux.conf
   boot.loader.generic-extlinux-compatible.enable = true;
 
   # !!! Set to specific linux kernel version
-  boot.kernelPackages = pkgs.linuxKernel.kernels.linux_rpi4;
+  #boot.kernelPackages = pkgs.linuxKernel.kernels.linux_rpi4;
 
   # !!! Needed for the virtual console to work on the RPi 3, as the default of 16M doesn't seem to be enough.
   # If X.org behaves weirdly (I only saw the cursor) then try increasing this to 256M.
@@ -64,7 +82,6 @@
     pulse.enable = true;
     jack.enable = false;
     wireplumber.enable = true;
-    lowLatency.enable = true;
     audio.enable = true;
   };
 
@@ -103,7 +120,7 @@
       home = "/home/ovos";
       name = "ovos";
       group = "ovos";
-      shell = pkgs.bash;
+      isNormalUser = true;
       extraGroups = ["wheel"];
     };
   };
