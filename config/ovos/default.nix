@@ -285,7 +285,7 @@
         XDG_RUNTIME_DIR=/run/user/1000
         EOL
         cd /home/ovos/ovos-docker/compose
-        ${pkgs.docker-client}/bin/docker compose --project-name ovos --parallel 3 pull
+        ${pkgs.docker-client}/bin/docker compose --project-name ovos --parallel 1 pull
         ${pkgs.docker-client}/bin/docker compose \
           --project-name ovos \
           --env-file .env \
