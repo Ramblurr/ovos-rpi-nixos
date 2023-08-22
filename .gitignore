@@ -2,4 +2,4 @@
 backup
 .env
 result
-sd-image.*
+*.img
