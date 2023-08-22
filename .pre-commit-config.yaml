@@ -1,0 +1,34 @@
+---
+fail_fast: false
+
+repos:
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.32.0
+    hooks:
+      - args:
+          - --config-file
+          - .github/lint/.yamllint.yaml
+        id: yamllint
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: iot/
+      - id: end-of-file-fixer
+        exclude: iot/
+      - id: fix-byte-order-marker
+        exclude: iot/
+      - id: mixed-line-ending
+        exclude: iot/
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+        exclude: iot/
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.4
+    hooks:
+      - id: remove-crlf
+        exclude: iot/
+      - id: remove-tabs
+        exclude: (Makefile|Makefile.j2|iot/)
