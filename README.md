@@ -35,12 +35,8 @@ Access:
 * `ssh ovos@<IP>`
 
 Update:
-* From your ovos rpi running NixOS: `chown -R /etc/nixos`
-* From your workstation:
-    ``` console
-    rsync -vr config/user-config.nix config/ovos config/configuration.nix ovos@<IP>:/etc/nixos/
-    ```
-* From your ovos rpi running NixOS: `sudo nixos-rebuild switch`
+* Edit your nix configuration, you can find it in `/etc/nixos/user-config.nix`
+* After editing your config, update with: `sudo nixos-rebuild switch`
 
 
 ## Roadmap
