@@ -55,7 +55,6 @@ with lib; let
     enable = true;
     unitConfig = {
       RequiresMountsFor = "%t/containers";
-      ConditionPathExists = "/etc/ovos-image-load-complete-${hashOfServices}";
     };
     serviceConfig = {
       Environment = "PODMAN_SYSTEMD_UNIT=%n";
@@ -273,10 +272,6 @@ in {
           wants = ["network-online.target"];
           after = ["network-online.target"];
           wantedBy = ["default.target"];
-          restartIfChanged = true;
-          unitConfig = {
-            ConditionPathExists = "!/etc/ovos-image-load-complete-${hashOfServices}";
-          };
           serviceConfig = {
             Restart = "no";
             KillMode = "process";
@@ -297,7 +292,6 @@ in {
           wantedBy = ["default.target"];
           unitConfig = {
             RequiresMountsFor = "/run/user/1000/containers";
-            ConditionPathExists = "/etc/ovos-image-load-complete-${hashOfServices}";
           };
           serviceConfig = {
             Environment = "PODMAN_SYSTEMD_UNIT=%n";
