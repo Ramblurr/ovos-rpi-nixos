@@ -28,14 +28,14 @@ jobs:
         uses: actions/cache@v3
         with:
           path: output
-          key: output
+          key: ${{ runner.os }}-${{ hashFiles('output/**') }}
 
       - name: Setup variables
         id: vars
         run: |
           build_date=$(date +%Y%m%d%H%M)
-          echo "tag-name=${{ steps.build_name.outputs.result }}-${build_date}" >> "$GITHUB_OUTPUT"
-          echo "iso-name=ovos-nix-${{ steps.build_name.outputs.result }}-${{ steps.build_branch.outputs.result }}-${build_date}-aarch64.img" >> "$GITHUB_OUTPUT"
+          echo "tag-name=${build_date}" >> "$GITHUB_OUTPUT"
+          echo "iso-name=ovos-nix-${build_date}-aarch64.img" >> "$GITHUB_OUTPUT"
           echo "build-output=ovos-nix-sd-image-aarch64-linux.img" >> "$GITHUB_OUTPUT"
 
       - name: Debug
@@ -49,16 +49,13 @@ jobs:
 
       - name: Rename iso
         run: |
-          ls
           mkdir -p output
-          ls output
           mv ./${{ steps.vars.outputs.build-output }} output/${{ steps.vars.outputs.iso-name }}
 
   boot-test:
     name: Test Image
     runs-on: ubuntu-latest
     needs: build-image
-    if: github.ref_name == 'disabled'
 
     steps:
       - name: Checkout Code
@@ -74,7 +71,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: output
-          key: output
+          key: ${{ runner.os }}-${{ hashFiles('output/**') }}
 
       - name: Boot Raspberry Pi Image
         env:
@@ -84,12 +81,12 @@ jobs:
           ls
           ls output
           timeout 300 qemu-system-aarch64 \
-            -machine type=raspi4
-            -m 2G \
-            -kernel kernel8.img \
+            -M raspi3 \
+            -m 1G \
+            -kernel kernel7.img \
             -append "rw earlyprintk loglevel=8 console=ttyAMA0,115200 dwc_otg.lpm_enable=0 root=/dev/mmcblk0p2" \
             -sd output/$ISO_NAME \
-            -dtb bcm2711-rpi-4-b.dtb \
+            -dtb bcm2710-rpi-3-b.dtb \
             -no-reboot \
             -serial stdio  | tee boot.log
           if grep -q "Reached target Multi-User System." boot.log; then
@@ -115,7 +112,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: output
-          key: output
+          key: ${{ runner.os }}-${{ hashFiles('output/**') }}
 
       - env:
           TAG_NAME: ${{needs.build-image.outputs.tag-name}}
