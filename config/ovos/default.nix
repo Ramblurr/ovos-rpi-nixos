@@ -49,7 +49,7 @@
     #boot.loader.raspberryPi.enable = true;
     #boot.loader.raspberryPi.version = 4;
 
-    boot.kernelPackages = pkgs.linuxPackages_rpi4;
+    boot.kernelPackages = lib.mkForce pkgs.linuxPackages_rpi4;
     boot.initrd.availableKernelModules = ["usbhid" "usb_storage"];
     boot.tmp.useTmpfs = true;
     boot.kernelParams = [
