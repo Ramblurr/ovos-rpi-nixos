@@ -41,9 +41,10 @@ Update:
 
 ## Roadmap
 
+- [x] Prebaked container images to reduce first-boot time
+- [x] User Config: network settings (Wifi SSID and password)
 - [ ] Test on raspberry pi 3
 - [ ] GUI Support
-- [ ] User Config: network settings (Wifi SSID and password)
 - [ ] User Config: mycroft.conf settings (? or delegate to [OpenVoiceOS/ovos-personal-backend](https://github.com/OpenVoiceOS/ovos-personal-backend))
 - [ ] Easy-peasy update mechanism
 

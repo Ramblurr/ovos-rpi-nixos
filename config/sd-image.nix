@@ -8,6 +8,7 @@
     ./rpi4
     ./user-config.nix
     ./ovos
+    ./sd-image-ovos-prebaked.nix
   ];
 
   # Overrides to https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/profiles/installation-device.nix

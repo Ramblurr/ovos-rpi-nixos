@@ -49,8 +49,8 @@ with lib; let
 
   commonServiceConfig = name: opts: {
     description = "Podman container ${name} service";
-    wants = ["network-online.target"];
-    after = ["network-online.target"] ++ map (name: "${name}.service") opts.requires;
+    wants = ["network-online.target" "ovos-image-preload.service"];
+    after = ["network-online.target" "ovos-image-preload.service"] ++ map (name: "${name}.service") opts.requires;
     bindsTo = map (name: "${name}.service") opts.requires;
     enable = true;
     unitConfig = {
@@ -273,7 +273,7 @@ in {
             KillMode = "process";
             Type = "oneshot";
             RemainAfterExit = "yes";
-            TimeoutStartSec = "30min";
+            TimeoutStartSec = "60min";
           };
         };
         pod_ovos = let
@@ -283,8 +283,8 @@ in {
           path = [pkgs.podman pkgs.su];
           description = "Podman pod_ovos.service";
           before = systemdUnitNames;
-          wants = systemdUnitNames;
-          after = ["network-online.target"];
+          wants = systemdUnitNames ++ [ "ovos-image-preload.service"];
+          after = ["network-online.target"  "ovos-image-preload.service"];
           wantedBy = ["default.target"];
           unitConfig = {
             RequiresMountsFor = "/run/user/1000/containers";
