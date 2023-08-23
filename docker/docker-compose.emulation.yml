@@ -1,5 +1,6 @@
+---
 # Compose file which enables emulation out of the box for non-AArch64 systems.
-# 
+#
 # Comes out with sane defaults, feel free to configure as needed.
 
 version: "3"
@@ -8,7 +9,6 @@ services:
   # This is the first container and image, responsible for setting up QEMU. In the future, this
   # can be replaced with `multiarch/qemu-user-static` when it supports at least QEMU 5.0.
   setup-qemu:
-    image: qemu-handler
     build:
       context: setup-qemu
       args:
@@ -25,7 +25,10 @@ services:
   # Cleanup. Waits until `build-nixos` is done via a TCP socket, then cleans up any `binfmt_misc`
   # handler registered to QEMU.
   cleanup-qemu:
-    image: qemu-handler
+    build:
+      context: setup-qemu
+      args:
+        IMAGE_BASE: $IMAGE_BASE
     environment:
       QEMU_CLEANUP: "y"
     privileged: true

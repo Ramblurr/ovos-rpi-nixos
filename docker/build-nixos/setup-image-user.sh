@@ -1,5 +1,5 @@
 #!/bin/sh
-set -efu
+set -exfu
 
 echo "building container as $USER"
 cd

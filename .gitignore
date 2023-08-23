@@ -3,3 +3,4 @@ backup
 .env
 result
 *.img
+*.img.xz

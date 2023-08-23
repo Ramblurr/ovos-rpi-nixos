@@ -9,6 +9,9 @@
 #
 set -u
 
+export COMPOSE_DOCKER_CLI_BUILD=1
+export DOCKER_BUILDKIT=1
+
 DOCKER_COMPOSE="docker compose"
 
 if command -v "docker" >/dev/null 2>&1 && docker compose version --short >/dev/null 2>&1; then
@@ -41,7 +44,7 @@ arm|armel|armhf|arm64|armv[4-9]*l|aarch64)
 esac
 
 # Default
-readonly COMPOSE_ACTION="${1-up}"
+readonly COMPOSE_ACTION="${1:-up}"
 [ "$#" -ne 0 ] && shift
 
 COMPOSE_ARGS="-f ./docker/docker-compose.yml"

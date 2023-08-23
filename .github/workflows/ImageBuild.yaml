@@ -5,10 +5,11 @@ on:
   push:
     paths:
       - "**/*.nix"
+      - ".github/workflows/ImageBuild.yaml"
 
 jobs:
   build-image:
-    name: Build dev image
+    name: Build sd-card image
     runs-on: ubuntu-latest
     outputs:
       iso-name: ${{ steps.vars.outputs.iso-name }}
@@ -44,7 +45,19 @@ jobs:
           echo "${{ steps.vars.outputs.iso-name }}"
           echo "${{ steps.vars.outputs.build-output }}"
 
-      - name: Build image
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+
+      - name: Pull Images
+        run: |
+          sudo bash build.sh pull
+
+      - name: Cache Docker Layers
+        uses: jpribyl/action-docker-layer-caching@v0.1.1
+        # Ignore the failure of a step and avoid terminating the job.
+        continue-on-error: true
+
+      - name: Build sd-card image
         run: sudo bash build.sh
 
       - name: Rename iso
@@ -78,8 +91,10 @@ jobs:
           TAG_NAME: ${{needs.build-image.outputs.tag-name}}
           ISO_NAME: ${{needs.build-image.outputs.iso-name}}
         run: |
+          set -ex
           ls
           ls output
+          qemu-system-aarch64 -machine help
           timeout 300 qemu-system-aarch64 \
             -M raspi3 \
             -m 1G \
@@ -119,9 +134,17 @@ jobs:
           ISO_NAME: ${{needs.build-image.outputs.iso-name}}
         run: "echo Releasing img=$ISO_NAME tag=$TAG_NAME"
 
+      - name: Compress Image
+        run: |
+          set -ex
+          sudo apt-get update && sudo apt-get install -y xz-utils
+          xz -z -9 -T0 output/${{ needs.build-image.outputs.iso-name }}
+          ls -al
+          ls -al output
+
       - name: Create release with artifact
         uses: ncipollo/release-action@37c87f6b53fb46d40450c3cac428aa83c8d0055f
         with:
           tag: "ovos-nix-${{needs.build-image.outputs.tag-name  }}"
-          artifacts: "output/${{ needs.build-image.outputs.iso-name }}"
+          artifacts: "output/${{ needs.build-image.outputs.iso-name }}.xz"
           artifactErrorsFailBuild: true
