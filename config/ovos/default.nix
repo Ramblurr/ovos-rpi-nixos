@@ -4,6 +4,9 @@
   pkgs,
   ...
 }: {
+  imports = [
+    ./containers.nix
+  ];
   options = {
     ovos.timezone = lib.mkOption {
       type = lib.types.str;
@@ -15,15 +18,17 @@
       default = "";
       description = "The SSH key to use for the system";
     };
-    ovos.ovosGitUrl = lib.mkOption {
-      type = lib.types.str;
-      default = "https://github.com/OpenVoiceOS/ovos-docker.git";
-      description = "The URL to the ovos-docker repository";
-    };
-    ovos.ovosGitRef = lib.mkOption {
-      type = lib.types.str;
-      default = "origin/main";
-      description = "The git ref to use for the ovos-docker repository";
+    ovos.container = {
+      imageTag = lib.mkOption {
+        type = lib.types.str;
+        default = "alpha";
+        description = "The tag to use for the ovos-docker containers";
+      };
+      imageRepo = lib.mkOption {
+        type = lib.types.str;
+        default = "docker.io/smartgic";
+        description = "The docker image repository prefix to use for the ovos-docker containers";
+      };
     };
   };
   config = {
@@ -41,13 +46,20 @@
     boot.loader.grub.enable = false;
     # Enables the generation of /boot/extlinux/extlinux.conf
     boot.loader.generic-extlinux-compatible.enable = true;
+    #boot.loader.raspberryPi.enable = true;
+    #boot.loader.raspberryPi.version = 4;
 
-    #boot.kernelPackages = pkgs.linuxKernel.kernels.linux_rpi4;
+    boot.kernelPackages = pkgs.linuxPackages_rpi4;
+    boot.initrd.availableKernelModules = ["usbhid" "usb_storage"];
+    boot.tmp.useTmpfs = true;
+    boot.kernelParams = [
+      # !!! Needed for the virtual console to work on the RPi 3, as the default of 16M doesn't seem to be enough.
+      # If X.org behaves weirdly (I only saw the cursor) then try increasing this to 256M.
+      # On a Raspberry Pi 4 with 4 GB, you should either disable this parameter or increase to at least 64M if you want the USB ports to work.
+      "cma=128M"
 
-    # !!! Needed for the virtual console to work on the RPi 3, as the default of 16M doesn't seem to be enough.
-    # If X.org behaves weirdly (I only saw the cursor) then try increasing this to 256M.
-    # On a Raspberry Pi 4 with 4 GB, you should either disable this parameter or increase to at least 64M if you want the USB ports to work.
-    boot.kernelParams = ["cma=256M"];
+      "console=tty0"
+    ];
 
     # File systems configuration for using the installer's partition layout
     fileSystems = {
@@ -75,6 +87,7 @@
       # dev packages, remove in the future
       jq
       python311
+      nix-prefetch-docker
 
       # actual packages we need for ovos
       git
@@ -84,6 +97,7 @@
       pulseaudio
       pulsemixer
       docker-client # for docker compose, it'll talk to the podman socket
+      podman-compose
 
       # friendly sysadmin tools
       htop
@@ -208,6 +222,18 @@
       dockerSocket.enable = true;
       enable = true;
     };
+    #virtualisation.containers.storage.settings = {
+    #  storage = {
+    #    driver = "overlay";
+    #    graphroot = "/var/lib/containers/storage";
+    #    runroot = "/run/containers/storage";
+    #    #options = {
+    #    #  overlay = {
+    #    #    mountopts = "nodev,index=off";
+    #    #  };
+    #    #};
+    #  };
+    #};
 
     hardware = {
       enableRedistributableFirmware = true;
@@ -244,7 +270,7 @@
         name = "ovos";
         group = "ovos";
         isNormalUser = true;
-        extraGroups = ["wheel" "audio"];
+        extraGroups = ["wheel" "audio" "podman"];
 
         openssh.authorizedKeys.keys = [
           config.ovos.sshKey
@@ -254,60 +280,9 @@
     users.extraUsers.root.openssh.authorizedKeys.keys = [
       config.ovos.sshKey
     ];
-
-    systemd.user.services.ovos-docker = {
-      description = "OVOS Docker";
-      wantedBy = ["default.target"];
-      script = ''
-        #!${pkgs.bash}/bin/bash
-        set -ex
-        REPO_URL="${config.ovos.ovosGitUrl}"
-        REF="${config.ovos.ovosGitRef}"
-        TARGET_DIR="/home/ovos/ovos-docker"
-        GIT=${pkgs.git}/bin/git
-
-        if [ ! -d "$TARGET_DIR" ]; then
-          $GIT clone "$REPO_URL" "$TARGET_DIR"
-          cd "$TARGET_DIR"
-          $GIT reset --hard $REF
-        else
-          cd "$TARGET_DIR"
-          $GIT fetch
-          $GIT reset --hard $REF
-        fi
-        cat <<EOL > /home/ovos/ovos-docker/compose/.env
-        GPIO_GID=997
-        HIVEMIND_CONFIG_FOLDER=~/hivemind/config
-        HIVEMIND_SHARE_FOLDER=~/hivemind/share
-        OVOS_CONFIG_FOLDER=~/ovos/config
-        OVOS_SHARE_FOLDER=~/ovos/share
-        OVOS_USER=ovos
-        RENDER_GID=106
-        TMP_FOLDER=~/ovos/tmp
-        TZ=${config.ovos.timezone}
-        VERSION=alpha
-        XDG_RUNTIME_DIR=/run/user/1000
-        EOL
-        cd /home/ovos/ovos-docker/compose
-        ${pkgs.docker-client}/bin/docker compose --project-name ovos --parallel 1 pull
-        ${pkgs.docker-client}/bin/docker compose \
-          --project-name ovos \
-          --env-file .env \
-          -f docker-compose.yml \
-          -f docker-compose.skills.yml \
-          -f docker-compose.raspberrypi.yml \
-          up --detach --remove-orphans
-      '';
-      serviceConfig = {
-        WorkingDirectory = "/home/ovos";
-        KillMode = "process";
-        Type = "oneshot";
-        RemainAfterExit = "yes";
-      };
-      enable = true;
-    };
     environment.sessionVariables = {
       DOCKER_HOST = "unix:///run/user/1000/podman/podman.sock";
+      DOCKER_BUILDKIT = "1";
     };
     # This allows the ovos user systemd services to run without anyone logging in
     system.activationScripts = {

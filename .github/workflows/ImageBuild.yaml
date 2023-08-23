@@ -1,14 +1,19 @@
 ---
-name: nix-build-on-demand-docker
+name: Build RPI Image
 on:
+  workflow_dispatch:
   push:
     paths:
-      - '**/*.nix'
+      - "**/*.nix"
 
 jobs:
-  build-dev-image:
+
+  build-image:
     name: Build dev image
     runs-on: ubuntu-latest
+    outputs:
+      iso-name: ${{ steps.vars.outputs.iso-name }}
+      tag-name: ${{ steps.vars.outputs.tag-name }}
     steps:
       - uses: actions/checkout@v3.5.3
 
@@ -41,16 +46,37 @@ jobs:
           mkdir output
           mv ./${{ steps.vars.outputs.build-output }} output/${{ steps.vars.outputs.iso-name }}
 
-      - uses: actions/upload-artifact@v3
+      - name: Cache Image
+        id: cache-image
+        uses: actions/cache@v3
         with:
-          name: sd-image.img
-          path: "output/${{ steps.vars.outputs.iso-name }}"
+          path: output
+          key: output
+
+  release-image:
+    permissions:
+      contents: write
+    name: Release Image
+    needs: build-image
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Load Image Cache
+        id: cache-image
+        uses: actions/cache@v3
+        with:
+          path: output
+          key: output
+
+      - env:
+          TAG_NAME: ${{needs.build-image.outputs.tag-name}}
+          ISO_NAME: ${{needs.build-image.outputs.iso-name}}
+        run: "echo Releasing img=$ISO_NAME tag=$TAG_NAME"
 
       - name: Create release with artifact
-        if: github.ref == 'refs/heads/main'
         uses: ncipollo/release-action@37c87f6b53fb46d40450c3cac428aa83c8d0055f
         with:
-          #token: "${{ steps.generate-token.outputs.token }}"
-          tag: "ovos-nix-${{ steps.vars.outputs.tag-name }}"
-          artifacts: "output/${{ steps.vars.outputs.iso-name }}"
+          tag: "ovos-nix-${{needs.build-image.outputs.tag-name  }}"
+          artifacts: "output/${{ needs.build-image.outputs.iso-name }}"
           artifactErrorsFailBuild: true
