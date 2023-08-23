@@ -13,6 +13,7 @@ with lib; {
         image = mkDefault "${config.ovos.container.imageRepo}/ovos-messagebus";
         tag = mkDefault "${config.ovos.container.imageTag}";
         withConfigRO = mkDefault true;
+        exposeMessageBus = mkDefault false;
       };
       ovos_phal = {
         image = mkDefault "${config.ovos.container.imageRepo}/ovos-phal";

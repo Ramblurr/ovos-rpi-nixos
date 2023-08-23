@@ -131,6 +131,10 @@ with lib; let
                 "ovos_vosk:/home/ovos/.local/share/vosk"
               ];
             }
+            {
+              o = opts.exposeMessageBus;
+              v = "--publish 127.0.0.1:8181:8181";
+            }
           ]
         )
         + " ${opts.image}:${opts.tag}";
@@ -213,6 +217,11 @@ in {
             type = types.bool;
             default = false;
             description = "Whether or not the config mount should be read-only";
+          };
+          exposeMessageBus= mkOption {
+            type = types.bool;
+            default = false;
+            description = "Whether or not to expose the message bus to the host";
           };
           requires = mkOption {
             type = types.listOf types.str;
