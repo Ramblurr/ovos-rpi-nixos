@@ -2,7 +2,7 @@
 
 [![AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--v3--or--later-blue)](./LICENSE) [![ImageBuild](https://github.com/Ramblurr/ovos-rpi-nixos/actions/workflows/ImageBuild.yaml/badge.svg)](https://github.com/Ramblurr/ovos-rpi-nixos/actions)
 
-A bootable raspberry pi image for the OpenVoice OS built and configured with NixOS. Powered by [OpenVoiceOS/ovos-docker](https://github.com/OpenVoiceOS/ovos-docker)
+A bootable raspberry pi image for the OpenVoice OS built and configured with NixOS. Every build is reproducible. Powered by [OpenVoiceOS/ovos-docker](https://github.com/OpenVoiceOS/ovos-docker)
 
 * Download latest build: https://github.com/Ramblurr/ovos-rpi-nixos/releases
 
@@ -34,13 +34,22 @@ Access:
 
 * `ssh ovos@<IP>`
 
+Update:
+* From your ovos rpi running NixOS: `chown -R /etc/nixos`
+* From your workstation:
+    ``` console
+    rsync -vr config/user-config.nix config/ovos config/configuration.nix ovos@<IP>:/etc/nixos/
+    ```
+* From your ovos rpi running NixOS: `sudo nixos-rebuild switch`
+
+
 ## Roadmap
 
 - [ ] Test on raspberry pi 3
 - [ ] GUI Support
-- [ ] User Config: network settings
-- [ ] User Config: mycroft.conf settings
-
+- [ ] User Config: network settings (Wifi SSID and password)
+- [ ] User Config: mycroft.conf settings (? or delegate to [OpenVoiceOS/ovos-personal-backend](https://github.com/OpenVoiceOS/ovos-personal-backend))
+- [ ] Easy-peasy update mechanism
 
 ## License
 
