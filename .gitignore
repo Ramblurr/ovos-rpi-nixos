@@ -4,3 +4,5 @@ backup
 result
 *.img
 *.img.xz
+*.qcow2
+*.dtb
