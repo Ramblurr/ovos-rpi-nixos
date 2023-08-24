@@ -50,7 +50,9 @@ readonly COMPOSE_ACTION="${1:-up}"
 COMPOSE_ARGS="-f ./docker/docker-compose.yml"
 [ -n "$WANTS_EMULATION" ] && COMPOSE_ARGS="$COMPOSE_ARGS -f ./docker/docker-compose.emulation.yml"
 
+CI=
 if [ -n "$CI" ]; then
+  echo "CI Detected"
   export PUID=$(id -ur)
   export PGID=$(id -gr)
   COMPOSE_ARGS="$COMPOSE_ARGS -f ./docker/docker-compose.ci.yml"

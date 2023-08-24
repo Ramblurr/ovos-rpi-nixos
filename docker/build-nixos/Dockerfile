@@ -7,7 +7,7 @@ ARG NIXPKGS_BRANCH
 ARG APPLY_CPTOFS_PATCH
 ARG DISABLE_ZFS_IN_INSTALLER
 
-RUN apk add curl git sudo patch xz
+RUN apk add curl git sudo patch xz su-exec shadow
 RUN adduser -D nixos
 RUN mkdir -m 0755 /nix
 RUN chown nixos /nix
@@ -25,3 +25,6 @@ USER nixos
 ENV USER=nixos
 
 RUN sh $HOME/setup-image-user.sh
+
+USER root
+ENTRYPOINT ["/home/nixos/entrypoint.sh"]

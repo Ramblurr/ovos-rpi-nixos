@@ -7,4 +7,8 @@ version: "3"
 
 services:
   build-nixos:
-    user: "${PUID}:${PGID}"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - HOME=/home/nixos
+      - USER=nixos

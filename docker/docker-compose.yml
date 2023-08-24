@@ -10,14 +10,14 @@ version: "3"
 services:
   # Main container, requires no elevated privileges to run. Builds NixOS.
   build-nixos:
-    image: ghcr.io/ramblurr/ovos-rpi-nixos-builder:latest
+    #image: ghcr.io/ramblurr/ovos-rpi-nixos-builder:latest
     # Or use these settings
-    # build:
-    #   context: build-nixos
-    #   args:
-    #     IMAGE_BASE: $IMAGE_BASE
-    #     NIXPKGS_URL: "https://github.com/nixos/nixpkgs"
-    #     NIXPKGS_BRANCH: "release-23.05"
+    build:
+      context: build-nixos
+      args:
+        IMAGE_BASE: $IMAGE_BASE
+        NIXPKGS_URL: "https://github.com/nixos/nixpkgs"
+        NIXPKGS_BRANCH: "release-23.05"
     working_dir: /home/nixos
     # Main command line, left here so it can be changed easily. The container will:
     # - setup the environment. This includes adding the Nix executables to $PATH, along with the
@@ -43,7 +43,7 @@ services:
       ls -al && \
       ls -al /build/ && \
       ls -al result/sd-image/* && \
-      chmod u+w result/sd-image/* && cp result/sd-image/* /build",
+      chmod u+w result/sd-image/* && sudo cp result/sd-image/* /build",
     ]
     volumes:
       - ..:/build
