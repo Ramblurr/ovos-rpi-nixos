@@ -25,4 +25,4 @@ ls -al
 ls -al ${OUTPUT_DIR}/
 ls -al result/sd-image/*
 
-chmod u+w result/sd-image/* && sudo cp result/sd-image/* ${OUTPUT_DIR}
+chmod u+w result/sd-image/* && cp result/sd-image/* ${OUTPUT_DIR}
