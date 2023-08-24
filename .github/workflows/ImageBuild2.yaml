@@ -77,7 +77,10 @@ jobs:
           mkdir -p containers/30001 containers/30002 containers/30003
           sudo ln -s $(pwd)/containers /run/containers
           sudo chown -R runner containers/ /run/containers
-          sudo chmod -R o+w containers/ /run/containers
+          sudo chmod -R 777 containers/ /run/containers
+          ls -al
+          ls -al /run | grep cont
+          find containers
 
       - name: Build SD Image
         run: |
