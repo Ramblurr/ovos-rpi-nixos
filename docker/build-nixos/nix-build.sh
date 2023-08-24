@@ -6,6 +6,13 @@
 # - build the actual SD image.
 # - copy it to ${OUTPUT_DIR}, which points by default to this directory.
 
+VALID_PLATFORMS="rpi3 rpi4"
+if [ -z "$PLATFORM" ] || ! echo " $VALID_PLATFORMS " | grep -q " $PLATFORM "; then
+    echo "error: PLATFORM not set or invalid" >&2
+    echo "must be one of: $VALID_PLATFORMS" >&2
+    exit 1
+fi
+
 . setup-env
 sh wait-for-qemu.sh
 set -ex
@@ -18,7 +25,7 @@ nix-build \
     -A config.system.build.sdImage \
     --option system aarch64-linux \
     --option sandbox false \
-    -I nixos-config=${OUTPUT_DIR}/config/sd-image.nix \
+    -I nixos-config=${OUTPUT_DIR}/config/sd-image-${PLATFORM}.nix \
     nixpkgs/nixos/default.nix
 
 ls -al

@@ -10,7 +10,7 @@
   options = {
     # ovos.platform is a mkOption that can be one of rpi4 or rpi3
     ovos.platform = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.enum [ "rpi3" "rpi4" ];
       default = "rpi4";
       description = "The platform to build for";
     };
@@ -89,7 +89,7 @@
     boot.kernelPackages =
       if config.ovos.platform == "rpi3"
       then lib.mkForce pkgs.linuxPackages_rpi3
-      else lib.mkForcepkgs.linuxPackages_rpi4;
+      else lib.mkForce pkgs.linuxPackages_rpi4;
 
     boot.initrd.availableKernelModules = ["usbhid" "usb_storage"];
     boot.tmp.useTmpfs = true;

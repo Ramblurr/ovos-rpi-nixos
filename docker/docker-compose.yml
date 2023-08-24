@@ -3,7 +3,7 @@
 # Use together with `docker-compose.emulation.yml` if a transparent emulation layer is required.
 
 # Comes out with sane defaults, feel free to configure as needed.
-# NOTE: the configuration used to build NixOS resides in the parent directory as `sd-image.nix`
+# NOTE: the configuration used to build NixOS resides in the parent directory as `sd-image-$PLATFORM.nix`
 
 version: "3"
 
@@ -19,6 +19,8 @@ services:
         NIXPKGS_URL: "https://github.com/nixos/nixpkgs"
         NIXPKGS_BRANCH: "release-23.05"
     working_dir: /home/nixos
+    environment:
+      - PLATFORM=rpi4
     # Main command line, left here so it can be changed easily. The container will:
     volumes:
       - ..:/build

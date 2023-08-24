@@ -12,7 +12,7 @@ from datetime import datetime
 
 IMAGES = {
     # key is the docker image name (without tag)
-    # value is the nix service key in config/ovos/containers.nix and config/sd-image-ovos-prebaked.nix
+    # value is the nix service key in config/ovos/containers.nix and config/sd-image/ovos-prebaked.nix
     "docker.io/smartgic/ovos-messagebus": "ovos_messagebus",
     "docker.io/smartgic/ovos-phal": "ovos_phal",
     "docker.io/smartgic/ovos-phal-admin": "ovos_phal_admin",
@@ -65,7 +65,7 @@ imageFile = pkgs.dockerTools.pullImage {{
 
 
 def update_nix_file(images, image_data):
-    filename = "config/sd-image-ovos-prebaked.nix"
+    filename = "config/sd-image/ovos-prebaked.nix"
 
     with open(filename, "r") as file:
         content = file.read()
