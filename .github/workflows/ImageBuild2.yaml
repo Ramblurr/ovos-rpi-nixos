@@ -14,7 +14,7 @@ jobs:
       iso-name: ${{ steps.vars.outputs.iso-name }}
       tag-name: ${{ steps.vars.outputs.tag-name }}
     env:
-      XDG_RUNTIME_DIR: /tmp
+      XDG_RUNTIME_DIR: /tmp/skopeo
     steps:
       - uses: actions/checkout@v3.5.3
 
@@ -51,7 +51,9 @@ jobs:
           echo "build-output=ovos-nix-sd-image-aarch64-linux.img" >> "$GITHUB_OUTPUT"
 
       - name: Login to Docker Hub
-        run: skopeo login --username ${{ secrets.DOCKERHUB_USER }} --password ${{ secrets.DOCKERHUB_TOKEN }} docker.io
+        run: |
+          [[ -z "$XDG_RUNTIME_DIR" ]] || mkdir -p $XDG_RUNTIME_DIR
+          skopeo login --username ${{ secrets.DOCKERHUB_USER }} --password ${{ secrets.DOCKERHUB_TOKEN }} docker.io
 
       - name: Debug
         run: |
@@ -74,11 +76,6 @@ jobs:
             -I nixos-config=./config/sd-image.nix \
             --argstr system aarch64-linux \
             --option sandbox false
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: sd-image.img
-          path: ./result/sd-image/*.img*
 
       - name: Move image to cache dir
         run: |
