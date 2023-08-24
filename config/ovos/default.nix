@@ -8,6 +8,11 @@
     ./containers.nix
   ];
   options = {
+    ovos.gui.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether to install the ovos-gui";
+    };
     ovos.timezone = lib.mkOption {
       type = lib.types.str;
       default = "Europe/Berlin";

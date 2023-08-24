@@ -217,7 +217,7 @@ in {
             default = false;
             description = "Whether or not the config mount should be read-only";
           };
-          exposeMessageBus= mkOption {
+          exposeMessageBus = mkOption {
             type = types.bool;
             default = false;
             description = "Whether or not to expose the message bus to the host";
@@ -287,8 +287,8 @@ in {
           path = [pkgs.podman pkgs.su];
           description = "Podman pod_ovos.service";
           before = systemdUnitNames;
-          wants = systemdUnitNames ++ [ "ovos-image-preload.service"];
-          after = ["network-online.target"  "ovos-image-preload.service"];
+          wants = systemdUnitNames ++ ["ovos-image-preload.service"];
+          after = ["network-online.target" "ovos-image-preload.service"];
           wantedBy = ["default.target"];
           unitConfig = {
             RequiresMountsFor = "/run/user/1000/containers";

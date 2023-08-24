@@ -5,7 +5,7 @@
   ...
 }:
 with lib; {
-  imports = [./modules/services.nix];
+  imports = [./modules/services.nix ./modules/gui.nix];
   services.ovos = {
     enable = true;
     services = {
