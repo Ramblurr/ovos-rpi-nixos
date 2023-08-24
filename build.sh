@@ -38,8 +38,13 @@ arm|armel|armhf|arm64|armv[4-9]*l|aarch64)
   ;;
 *)
   echo " detected non-ARM architecture, enabling emulation"
-  # [!] Leave WANTS_EMULATION= blank if you don't want to setup emulation with QEMU.
-  WANTS_EMULATION=y
+  set +e
+  if ./docker/build-nixos/aarch64-tester; then
+    WANTS_EMULATION=
+  else
+    WANTS_EMULATION=y
+  fi
+  set -e
   ;;
 esac
 
