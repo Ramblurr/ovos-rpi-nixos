@@ -71,7 +71,8 @@ jobs:
 
       - name: Build SD Image
         run: |
-          nix-build '<nixpkgs/nixos>'  \
+          NB=$(which nix-build)
+          sudo $NB '<nixpkgs/nixos>'  \
             -A config.system.build.sdImage \
             -I nixos-config=./config/sd-image.nix \
             --argstr system aarch64-linux \
@@ -84,4 +85,4 @@ jobs:
           ls -alh ./result/sd-image
           ls -alh ./result/
           ls -alh ./output
-          mv ./result/sd-image/* ./output/
+          sudo cp ./result/sd-image/* ./output/
