@@ -29,7 +29,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: output
-          key: ${{ runner.os }}-${{ hashFiles('output/**') }}
+          key: sd-image-${{ hashFiles('output/*.img') }}
 
       - name: Setup variables
         id: vars
@@ -63,9 +63,13 @@ jobs:
 
       - name: Rename iso
         run: |
+          set -ex
+          ls -al
           mkdir -p output
+          ls -al output
           rm -f output/*.img
           mv ./${{ steps.vars.outputs.build-output }} output/${{ steps.vars.outputs.iso-name }}
+          ls -al output
 
   boot-test:
     name: Test Image
@@ -86,7 +90,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: output
-          key: ${{ runner.os }}-${{ hashFiles('output/**') }}
+          key: sd-image-${{ hashFiles('output/*.img') }}
 
       - name: Boot Raspberry Pi Image
         env:
@@ -129,7 +133,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: output
-          key: ${{ runner.os }}-${{ hashFiles('output/**') }}
+          key: sd-image-${{ hashFiles('output/*.img') }}
 
       - env:
           TAG_NAME: ${{needs.build-image.outputs.tag-name}}
@@ -140,6 +144,8 @@ jobs:
         run: |
           set -ex
           sudo apt-get update && sudo apt-get install -y xz-utils
+          ls -alh
+          ls -alh output
           xz -z -9 -T0 output/${{ needs.build-image.outputs.iso-name }}
           ls -alh
           ls -alh output
