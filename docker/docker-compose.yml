@@ -37,7 +37,7 @@ services:
                          nixpkgs/nixos/default.nix && \
                        id && \
                        ls -al && \
-                       ls -al build/ && \
+                       ls -al /build/ && \
                        ls -al result/sd-image/* && \
                        chmod u+w result/sd-image/* && cp result/sd-image/* /build"]
     volumes:
