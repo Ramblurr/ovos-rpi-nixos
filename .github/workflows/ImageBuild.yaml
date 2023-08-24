@@ -150,7 +150,7 @@ jobs:
           ls -alh output
 
       - name: Create release with artifact
-        uses: ncipollo/release-action@37c87f6b53fb46d40450c3cac428aa83c8d0055f
+        uses: ncipollo/release-action@2d19fb459bc3363e985ff6a38af3a1465d3115b0
         with:
           tag: "ovos-nix-${{needs.build-image.outputs.tag-name  }}"
           artifacts: "output/${{ needs.build-image.outputs.iso-name }}.xz"
