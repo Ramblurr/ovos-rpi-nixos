@@ -50,12 +50,12 @@ jobs:
 
       - name: Pull Images
         run: |
-          sudo env CI=$CI bash build.sh pull
+          sudo env PUID=$(id -u) PGID=$(id -g) CI=$CI bash build.sh pull
 
-      #- name: Cache Docker Layers
-      #  uses: jpribyl/action-docker-layer-caching@v0.1.1
-      #  # Ignore the failure of a step and avoid terminating the job.
-      #  continue-on-error: true
+      - name: Cache Docker Layers
+        uses: jpribyl/action-docker-layer-caching@v0.1.1
+        # Ignore the failure of a step and avoid terminating the job.
+        continue-on-error: true
 
       #- name: Setup upterm session
       #  uses: lhotari/action-upterm@v1
