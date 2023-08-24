@@ -74,14 +74,13 @@ jobs:
           # fixes errors like this when using dockerTools.pullImage stemming from skopeo
           #   * reading JSON file "/run/containers/30001/auth.json": open /run/containers/30001/auth.json: permission denied
           sudo rm -rf /run/containers
-          mkdir containers
+          mkdir -p containers/30001 containers/30002 containers/30003
           sudo ln -s $(pwd)/containers /run/containers
           sudo chown -R runner containers/ /run/containers
           sudo chmod -R o+w containers/ /run/containers
 
       - name: Build SD Image
         run: |
-
           nix-build '<nixpkgs/nixos>'  \
             -A config.system.build.sdImage \
             -I nixos-config=./config/sd-image.nix \
