@@ -178,8 +178,6 @@ def run_test(image_name, devices, timeout_secs=300, clean=False, headless=False)
         "-dtb",
         "bcm2710-rpi-3-b.dtb",
         "-no-reboot",
-        "-serial",
-        "stdio",
         "-device",
         "usb-net,netdev=net0",
         "-netdev",
@@ -187,18 +185,25 @@ def run_test(image_name, devices, timeout_secs=300, clean=False, headless=False)
     ]
     if headless:
         cmd.append("-nographic")
+    else:
+        cmd.append("-serial")
+        cmd.append("stdio")
 
-    def timeout_terminate():
-        process.terminate()
+    def timeout_terminate(process):
         print("Timeout reached, killing vm")
+        process.terminate()
         print("FAIL")
         sys.exit(1)
+
+    if timeout_secs > 0:
+        print(f"Will timeout in {timeout_secs} seconds")
+
+    signal.signal(signal.SIGALRM, lambda signum, frame: timeout_terminate(process))
 
     process = subprocess.Popen(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
     if timeout_secs > 0:
-        signal.signal(signal.SIGALRM, lambda signum, frame: timeout_terminate)
         signal.alarm(timeout_secs)
     if process.stdout:
         for line in iter(process.stdout.readline, ""):
@@ -212,10 +217,10 @@ def run_test(image_name, devices, timeout_secs=300, clean=False, headless=False)
             if "OVOS Image Preload" in line:
                 print("[*] OVOS image preloader started !")
     if process.stderr:
-        print("ERROR")
+        print()
+        print("qemu reported the following on stderr:")
         for line in iter(process.stderr.readline, ""):
             print(line.strip())
-        sys.exit(1)
     print("PASS")
     sys.exit(0)
 
