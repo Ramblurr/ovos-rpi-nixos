@@ -171,7 +171,6 @@ in {
             '';
             example = literalExpression "pkgs.dockerTools.buildImage {...};";
           };
-
           withAudio = mkOption {
             type = types.bool;
             default = false;

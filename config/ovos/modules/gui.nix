@@ -6,12 +6,27 @@
 }:
 with lib; let
   ovos-shell = pkgs.writeShellScript "ovos-shell" ''
-    #!/bin/bash
+    #!/usr/bin/env bash
     set -ex
-    ${pkgs.podman}/bin/podman run \
+    services=("ovos_messagebus.service" "ovos_gui_websocket.service" "ovos_phal.service")
+
+    for service in "''${services[@]}"; do
+      while true; do
+        if systemctl is-active --quiet "$service"; then
+          echo "$service is running."
+          break
+        else
+          echo "Waiting for $service to start..."
+          sleep 1
+        fi
+      done
+    done
+    echo "All services are running."
+
+    sudo ${pkgs.podman}/bin/podman run \
       --cidfile=%t/%n.ctr-id \
       --cgroups=no-conmon \
-      --userns=keep-id:uid=1000,gid=1000 \
+      --pod-id-file=%t/pod_ovos.pd-id \
       --rm \
       --sdnotify=conmon \
       --replace \
@@ -19,6 +34,7 @@ with lib; let
       --pull missing \
       --device /dev/dri \
       --device /dev/snd \
+      --requires ovos_messagebus,ovos_gui_websocket,ovos_phal \
       -e TZ=${config.ovos.timezone} \
       -e PULSE_SERVER=unix:/run/user/1000/pulse/native \
       -e XDG_SESSION_TYPE=wayland \

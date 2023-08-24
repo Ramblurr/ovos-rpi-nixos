@@ -57,6 +57,11 @@ with lib; {
         tag = mkDefault "${config.ovos.container.imageTag}";
         requires = mkDefault ["ovos_messagebus"];
       };
+      ovos_gui_websocket = mkIf config.ovos.gui.enable {
+        image = mkDefault "${config.ovos.container.imageRepo}/ovos-gui-websocket";
+        tag = mkDefault "${config.ovos.container.imageTag}";
+        requires = mkDefault ["ovos_messagebus"];
+      };
     };
   };
 }
