@@ -58,7 +58,9 @@ jobs:
         continue-on-error: true
 
       - name: Build sd-card image
-        run: sudo bash build.sh
+        run: |
+          ls -alh
+          sudo bash build.sh
 
       - name: Rename iso
         run: |
