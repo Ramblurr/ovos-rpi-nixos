@@ -16,7 +16,7 @@ jobs:
     env:
       XDG_RUNTIME_DIR: /tmp/skopeo
     steps:
-      - uses: actions/checkout@v3.5.3
+      - uses: actions/checkout@v3.6.0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
