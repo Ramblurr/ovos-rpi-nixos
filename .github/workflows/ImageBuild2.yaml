@@ -21,8 +21,8 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      #- name: Free Disk Space
-      #  uses: jlumbroso/free-disk-space@main
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
 
       - uses: cachix/install-nix-action@v22
         with:
@@ -50,11 +50,6 @@ jobs:
           echo "iso-name=ovos-nix-${build_date}-aarch64.img" >> "$GITHUB_OUTPUT"
           echo "build-output=ovos-nix-sd-image-aarch64-linux.img" >> "$GITHUB_OUTPUT"
 
-      - name: Login to Docker Hub
-        run: |
-          [[ -z "$XDG_RUNTIME_DIR" ]] || mkdir -p $XDG_RUNTIME_DIR
-          skopeo login --username ${{ secrets.DOCKERHUB_USER }} --password ${{ secrets.DOCKERHUB_TOKEN }} docker.io
-
       - name: Debug
         run: |
           echo "${{ steps.vars.outputs.tag-name }}"
@@ -69,15 +64,25 @@ jobs:
         run: |
           cat /proc/sys/fs/binfmt_misc/qemu-aarch64
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
+      #   with:
+      #     limit-access-to-actor: true
+
+      - name: Munge GithubActions Environment
+        run: |
+          # fixes errors like this when using dockerTools.pullImage stemming from skopeo
+          #   * reading JSON file "/run/containers/30001/auth.json": open /run/containers/30001/auth.json: permission denied
+          sudo rm -rf /run/containers
+          mkdir containers
+          sudo ln -s $(pwd)/containers /run/containers
+          sudo chown -R runner containers/ /run/containers
+          sudo chmod -R o+w containers/ /run/containers
 
       - name: Build SD Image
         run: |
-          NB=$(which nix-build)
-          sudo $NB '<nixpkgs/nixos>'  \
+
+          nix-build '<nixpkgs/nixos>'  \
             -A config.system.build.sdImage \
             -I nixos-config=./config/sd-image.nix \
             --argstr system aarch64-linux \
