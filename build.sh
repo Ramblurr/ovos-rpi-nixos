@@ -50,18 +50,18 @@ readonly COMPOSE_ACTION="${1:-up}"
 COMPOSE_ARGS="-f ./docker/docker-compose.yml"
 [ -n "$WANTS_EMULATION" ] && COMPOSE_ARGS="$COMPOSE_ARGS -f ./docker/docker-compose.emulation.yml"
 
-CI=
+CI=${CI:-}
 if [ -n "$CI" ]; then
   echo "CI Detected"
-  export PUID=$(id -ur)
-  export PGID=$(id -gr)
+  export PUID=${PUID:-$(id -ur)}
+  export PGID=${PGID:-$(id -gr)}
   COMPOSE_ARGS="$COMPOSE_ARGS -f ./docker/docker-compose.ci.yml"
 fi;
 
 COMPOSE_UP_ACTION_ARGS="--exit-code-from build-nixos"
-COMPOSE_ACTION_ARGS=
+COMPOSE_ACTION_ARGS=""
 if [ "$COMPOSE_ACTION" = "up" ]; then
-  COMPOSE_ACTION_ARGS="${COMPOSE_UP_ACTION_ARGS}"
+  COMPOSE_ACTION_ARGS="$COMPOSE_UP_ACTION_ARGS"
 fi
 
 # backup the binary name to a separate variable

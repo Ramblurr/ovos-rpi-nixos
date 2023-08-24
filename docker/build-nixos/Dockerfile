@@ -18,13 +18,17 @@ RUN chown nixos /nix
 RUN echo 'Set disable_coredump false' >> /etc/sudo.conf
 RUN echo -e 'nixos ALL=(ALL) ALL\nnixos ALL=(root) NOPASSWD: /bin/cp' >> /etc/sudoers
 
-COPY --chown=nixos:nixos *.sh /home/nixos/
+COPY --chown=nixos:nixos setup-image-user.sh /home/nixos/
 COPY --chown=nixos:nixos aarch64-tester /home/nixos/
 
 USER nixos
 ENV USER=nixos
-
 RUN sh $HOME/setup-image-user.sh
-
 USER root
+
+COPY --chown=nixos:nixos entrypoint.sh /home/nixos/
+COPY --chown=nixos:nixos wait-for-qemu.sh /home/nixos/
+COPY --chown=nixos:nixos nix-build.sh /home/nixos/
 ENTRYPOINT ["/home/nixos/entrypoint.sh"]
+
+CMD ["/home/nixos/nix-build.sh"]

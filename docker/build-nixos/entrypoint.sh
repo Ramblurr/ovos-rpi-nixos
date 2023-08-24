@@ -10,6 +10,8 @@ if [ "$PUID" != "1000" ]; then
     /usr/sbin/groupmod -o -g "$PGID" nixos
     /usr/sbin/usermod -o -u "$PUID" nixos
     chown -R $PUID:$PGID /home/nixos
+    chown -R $PUID:$PGID /nix
 fi
 
-exec /sbin/su-exec $PUID "$BASH_SOURCE" "$@"
+echo "su-execing: $@"
+exec /sbin/su-exec $PUID "$@"
