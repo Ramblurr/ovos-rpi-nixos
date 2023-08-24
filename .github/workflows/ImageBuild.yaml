@@ -45,27 +45,26 @@ jobs:
           echo "${{ steps.vars.outputs.iso-name }}"
           echo "${{ steps.vars.outputs.build-output }}"
 
-      #- name: Free Disk Space
-      #  uses: jlumbroso/free-disk-space@main
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
 
       - name: Pull Images
         run: |
-          sudo bash build.sh pull
+          sudo env CI=$CI bash build.sh pull
 
       - name: Cache Docker Layers
         uses: jpribyl/action-docker-layer-caching@v0.1.1
         # Ignore the failure of a step and avoid terminating the job.
         continue-on-error: true
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
+      #- name: Setup upterm session
+      #  uses: lhotari/action-upterm@v1
+      #  with:
+      #    limit-access-to-actor: true
 
       - name: Build sd-card image
         run: |
-          ls -alh
-          sudo bash build.sh
+          sudo env CI=$CI bash build.sh
 
       - name: Rename iso
         run: |

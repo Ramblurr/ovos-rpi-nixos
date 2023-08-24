@@ -1,0 +1,10 @@
+---
+# Compose file which enables emulation out of the box for non-AArch64 systems.
+#
+# Comes out with sane defaults, feel free to configure as needed.
+
+version: "3"
+
+services:
+  build-nixos:
+    user: "${PUID}:${PGID}"
