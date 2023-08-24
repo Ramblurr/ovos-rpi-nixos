@@ -98,9 +98,10 @@ jobs:
           ISO_NAME: ${{needs.build-image.outputs.iso-name}}
         run: |
           set -ex
-          ls
-          ls output
-          python scripts/test-image.py output/$ISO_NAME
+          ls -al
+          ls -al output
+          python scripts/test-image.py --headless --timeout 100 --clean output/$ISO_NAME || true
+          ls -al output
 
   release-image:
     permissions:

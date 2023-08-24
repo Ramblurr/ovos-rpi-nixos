@@ -8,6 +8,38 @@
     ./containers.nix
   ];
   options = {
+    # ovos.platform is a mkOption that can be one of rpi4 or rpi3
+    ovos.platform = lib.mkOption {
+      type = lib.types.str;
+      default = "rpi4";
+      description = "The platform to build for";
+    };
+    ovos.password.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether to set a password for the ovos user";
+    };
+    ovos.password.password = lib.mkOption {
+      type = lib.types.str;
+      # default = "ovos";
+      default = "$6$qbm.15xyrMPZJOpE$KWqllLmWZL6sfNOnoX1rSVv5.cCvrf.eWXWueY1DxnS0yya0h9rmbNmLsJKG.vFrhn5SajLulzlWys8Tl.wmi1";
+      description = "The password to set for the ovos user.";
+    };
+    ovos.wireless.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether to enable wireless networking";
+    };
+    ovos.wireless.ssid = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "The SSID to connect to";
+    };
+    ovos.wireless.password = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "The password to use for the wireless network";
+    };
     ovos.gui.enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -54,7 +86,11 @@
     #boot.loader.raspberryPi.enable = true;
     #boot.loader.raspberryPi.version = 4;
 
-    boot.kernelPackages = lib.mkForce pkgs.linuxPackages_rpi4;
+    boot.kernelPackages =
+      if config.ovos.platform == "rpi3"
+      then lib.mkForce pkgs.linuxPackages_rpi3
+      else lib.mkForcepkgs.linuxPackages_rpi4;
+
     boot.initrd.availableKernelModules = ["usbhid" "usb_storage"];
     boot.tmp.useTmpfs = true;
     boot.kernelParams = [
@@ -62,7 +98,6 @@
       # If X.org behaves weirdly (I only saw the cursor) then try increasing this to 256M.
       # On a Raspberry Pi 4 with 4 GB, you should either disable this parameter or increase to at least 64M if you want the USB ports to work.
       "cma=128M"
-
       "console=tty0"
     ];
 
@@ -229,18 +264,6 @@
       dockerSocket.enable = true;
       enable = true;
     };
-    #virtualisation.containers.storage.settings = {
-    #  storage = {
-    #    driver = "overlay";
-    #    graphroot = "/var/lib/containers/storage";
-    #    runroot = "/run/containers/storage";
-    #    #options = {
-    #    #  overlay = {
-    #    #    mountopts = "nodev,index=off";
-    #    #  };
-    #    #};
-    #  };
-    #};
 
     hardware = {
       enableRedistributableFirmware = true;
@@ -251,15 +274,18 @@
       hostName = "ovos";
       firewall.enable = false;
       useDHCP = true;
-      interfaces.wlan0 = {
+      interfaces.wlan0 = lib.mkIf config.ovos.wireless.enable {
         useDHCP = true;
       };
       interfaces.eth0 = {
         useDHCP = true;
       };
 
-      wireless.enable = true;
-      wireless.interfaces = ["wlan0"];
+      wireless.enable = config.ovos.wireless.enable;
+      wireless.interfaces = lib.mkIf config.ovos.wireless.enable ["wlan0"];
+      wireless.networks = lib.mkIf config.ovos.wireless.enable {
+        "${config.ovos.wireless.ssid}".psk = config.ovos.wireless.password;
+      };
     };
 
     users.defaultUserShell = pkgs.bash;
@@ -278,15 +304,17 @@
         group = "ovos";
         isNormalUser = true;
         extraGroups = ["wheel" "audio" "podman"];
-
-        openssh.authorizedKeys.keys = [
-          config.ovos.sshKey
-        ];
+        hashedPassword = lib.mkIf config.ovos.password.enable config.ovos.password.password;
+        openssh.authorizedKeys.keys =
+          if config.ovos.sshKey != ""
+          then [config.ovos.sshKey]
+          else [];
       };
     };
-    users.extraUsers.root.openssh.authorizedKeys.keys = [
-      config.ovos.sshKey
-    ];
+    users.extraUsers.root.openssh.authorizedKeys.keys =
+      if config.ovos.sshKey != ""
+      then [config.ovos.sshKey]
+      else [];
     environment.sessionVariables = {
       DOCKER_HOST = "unix:///run/user/1000/podman/podman.sock";
       DOCKER_BUILDKIT = "1";

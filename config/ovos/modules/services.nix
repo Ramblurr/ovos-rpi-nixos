@@ -251,8 +251,12 @@ in {
     systemd.services =
       {
         ovos-image-preload = {
+          description = "OVOS Image Preload";
           script =
-            concatStringsSep "\n" (map (
+            ''
+              echo "OVOS Image Preload Starting"
+            ''
+            + concatStringsSep "\n" (map (
                 info:
                   if info.imageFile != null
                   then ''
@@ -267,6 +271,7 @@ in {
               imageInfoList)
             + ''
               touch /etc/ovos-image-load-complete-${hashOfServices}
+              echo "OVOS Image Preload Complete"
             '';
           wants = ["network-online.target"];
           after = ["network-online.target"];
@@ -284,7 +289,7 @@ in {
           systemdUnitNames = map (name: "${name}.service") serviceNames;
         in {
           path = [pkgs.podman pkgs.su];
-          description = "Podman pod_ovos.service";
+          description = "OVOS Podman Pod";
           before = systemdUnitNames;
           wants = systemdUnitNames ++ ["ovos-image-preload.service"];
           after = ["network-online.target" "ovos-image-preload.service"];
