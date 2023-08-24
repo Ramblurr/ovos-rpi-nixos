@@ -46,6 +46,7 @@ Update:
 - [ ] Test on raspberry pi 3
 - [ ] GUI Support
 - [ ] User Config: mycroft.conf settings (? or delegate to [OpenVoiceOS/ovos-personal-backend](https://github.com/OpenVoiceOS/ovos-personal-backend))
+- [ ] Microphone satellites with [roc-toolkit](https://github.com/roc-streaming/roc-toolkit)
 - [ ] Security
   - [ ] Remove sudo access from ovos user
   - [ ] Hivemind

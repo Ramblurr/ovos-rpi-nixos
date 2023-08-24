@@ -101,6 +101,8 @@
       wireplumber
       pulseaudio
       pulsemixer
+      roc-toolkit
+      openfec
       docker-client # for docker compose, it'll talk to the podman socket
       podman-compose
 
