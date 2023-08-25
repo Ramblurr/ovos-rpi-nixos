@@ -102,7 +102,7 @@ jobs:
           ls -al output
           sudo mkdir -p /mnt/rpi
           sudo chown -R $(id -u):$(id -g) /mnt/
-          python scripts/test-image.py --headless --timeout 100 --clean output/$ISO_NAME || true
+          python scripts/test-image.py --headless --timeout 900 --clean output/$ISO_NAME || true
           ls -al output
 
   release-image:

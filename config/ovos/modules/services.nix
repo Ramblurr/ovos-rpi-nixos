@@ -43,7 +43,7 @@ with lib; let
   imageInfoList = map (service: {
     imageNameAndTag = "${service.image}:${service.tag}";
     imageFile = service.imageFile;
-  }) (attrValues cfg.services);
+  }) (filter (service: service.enable) (attrValues cfg.services));
   concatenatedImageNamesAndTags = concatStringsSep "" (map (info: info.imageNameAndTag) imageInfoList);
   hashOfServices = builtins.hashString "sha256" concatenatedImageNamesAndTags;
 
@@ -170,6 +170,11 @@ in {
               image will be pulled from the registry as usual.
             '';
             example = literalExpression "pkgs.dockerTools.buildImage {...};";
+          };
+          enable = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Add mounts for listener data";
           };
           withAudio = mkOption {
             type = types.bool;
