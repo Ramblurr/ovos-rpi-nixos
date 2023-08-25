@@ -24,13 +24,6 @@ jobs:
         uses: docker/setup-buildx-action@v2
         timeout-minutes: 12
 
-      - name: Cache Image
-        id: cache-image
-        uses: actions/cache@v3
-        with:
-          path: output
-          key: sd-image-${{ hashFiles('output/*.img') }}
-
       - name: Setup variables
         id: vars
         run: |
@@ -71,6 +64,13 @@ jobs:
           mv ./${{ steps.vars.outputs.build-output }} output/${{ steps.vars.outputs.iso-name }}
           ls -al output
 
+      - name: Cache Image
+        id: cache-save
+        uses: actions/cache/save@v3
+        with:
+          path: output
+          key: sd-image-${{ steps.vars.outputs.tag-name }}-${{ github.ref_name }}-${{ github.sha }}
+
   boot-test:
     name: Test Image
     runs-on: ubuntu-latest
@@ -86,11 +86,11 @@ jobs:
           sudo apt-get install -y qemu-system-aarch64
 
       - name: Load Image Cache
-        id: cache-image
-        uses: actions/cache@v3
+        id: cache-restore
+        uses: actions/cache/restore@v3
         with:
           path: output
-          key: sd-image-${{ hashFiles('output/*.img') }}
+          key: sd-image-${{needs.build-image.outputs.tag-name}}-${{ github.ref_name }}-${{ github.sha }}
 
       - name: Boot Raspberry Pi Image
         env:
@@ -100,6 +100,8 @@ jobs:
           set -ex
           ls -al
           ls -al output
+          sudo mkdir -p /mnt/rpi
+          sudo chown -R $(id -u):$(id -g) /mnt/
           python scripts/test-image.py --headless --timeout 100 --clean output/$ISO_NAME || true
           ls -al output
 
@@ -115,11 +117,11 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Load Image Cache
-        id: cache-image
-        uses: actions/cache@v3
+        id: cache-restore
+        uses: actions/cache/restore@v3
         with:
           path: output
-          key: sd-image-${{ hashFiles('output/*.img') }}
+          key: sd-image-${{needs.build-image.outputs.tag-name}}-${{ github.ref_name }}-${{ github.sha }}
 
       - env:
           TAG_NAME: ${{needs.build-image.outputs.tag-name}}
