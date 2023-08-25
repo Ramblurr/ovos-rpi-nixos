@@ -262,7 +262,8 @@ in {
                   then ''
                     set +e
                     if ! ${pkgs.podman}/bin/podman image exists "${info.imageNameAndTag}"; then
-                    ${pkgs.podman}/bin/podman load -i "${info.imageFile}"
+                      #${pkgs.podman}/bin/podman load -i "${info.imageFile}"
+                      ${pkgs.podman}/bin/podman pull "${info.imageNameAndTag}"
                     fi
                     set -e
                   ''

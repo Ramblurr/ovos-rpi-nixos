@@ -51,6 +51,7 @@ Update:
   - [ ] Remove sudo access from ovos user
   - [ ] Hivemind
 - [ ] Easy-peasy update mechanism
+  - [ ] Idea: A web service running on the device that exposes a web UI for updating images
 
 
 ## License

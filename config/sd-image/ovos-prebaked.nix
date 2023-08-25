@@ -6,7 +6,6 @@
 }:
 with lib; {
   services.ovos = {
-    enable = true;
     services = {
       # LAST UPDATED: 2023-08-23
       ovos_messagebus = {

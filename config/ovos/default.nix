@@ -10,7 +10,7 @@
   options = {
     # ovos.platform is a mkOption that can be one of rpi4 or rpi3
     ovos.platform = lib.mkOption {
-      type = lib.types.enum [ "rpi3" "rpi4" ];
+      type = lib.types.enum ["rpi3" "rpi4"];
       default = "rpi4";
       description = "The platform to build for";
     };
