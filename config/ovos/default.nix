@@ -67,6 +67,65 @@
         description = "The docker image repository prefix to use for the ovos-docker containers";
       };
     };
+    ovos.roc = {
+      recv = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether to enable the ROC receiver";
+        };
+        source = lib.mkOption {
+          type = lib.types.str;
+          default = "rtp+rs8m://0.0.0.0:10001";
+          description = "The source endpoint to use for the ROC receiver. Refer to https://roc-streaming.org/toolkit/docs/manuals/roc_recv.html";
+        };
+        repair = lib.mkOption {
+          type = lib.types.str;
+          default = "rs8m://0.0.0.0:10002";
+          description = "The repair endpoint to use for the ROC receiver. Refer to https://roc-streaming.org/toolkit/docs/manuals/roc_recv.html";
+        };
+        control = lib.mkOption {
+          type = lib.types.str;
+          default = "rtcp://0.0.0.0:10003";
+          description = "The control endpoint to use for the ROC receiver. Refer to https://roc-streaming.org/toolkit/docs/manuals/roc_recv.html";
+        };
+
+        extraArgs = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          description = "Extra arguments for roc-recv. Refer to https://roc-streaming.org/toolkit/docs/manuals/roc_recv.html";
+        };
+      };
+
+      send = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether to enable the ROC sender";
+        };
+        source = lib.mkOption {
+          type = lib.types.str;
+          default = "alsa://hw:1,0";
+          description = "The source endpoint to use for the ROC sender. Refer to https://roc-streaming.org/toolkit/docs/manuals/roc_send.html";
+        };
+        repair = lib.mkOption {
+          type = lib.types.str;
+          default = null;
+          description = "The repair endpoint to use for the ROC sender. Refer to https://roc-streaming.org/toolkit/docs/manuals/roc_send.html";
+        };
+        control = lib.mkOption {
+          type = lib.types.str;
+          default = null;
+          description = "The control endpoint to use for the ROC sender. Refer to https://roc-streaming.org/toolkit/docs/manuals/roc_send.html";
+        };
+
+        extraArgs = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          description = "Extra arguments for roc-send. Refer to https://roc-streaming.org/toolkit/docs/manuals/roc_send.html";
+        };
+      };
+    };
   };
   config = {
     # Disable ZFS. It is problematic on the raspberry pi and anyways we don't need it.
