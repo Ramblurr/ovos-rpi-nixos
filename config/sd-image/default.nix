@@ -15,7 +15,19 @@
   sdImage.imageName = "${config.sdImage.imageBaseName}-${pkgs.stdenv.hostPlatform.system}.img";
   sdImage.imageBaseName = "ovos-nix-sd-image";
 
-  environment.etc."nixos/configuration.nix".source = ../configuration.nix;
-  environment.etc."nixos/user-config.nix".source = ../user-config.nix;
-  environment.etc."nixos/ovos".source = pkgs.copyPathToStore ../ovos;
+  environment.etc."nixos/configuration.nix" = {
+    source = ../configuration.nix;
+    mode = "file";
+    user = "ovos";
+  };
+  environment.etc."nixos/user-config.nix" = {
+    source = ../user-config.nix;
+    mode = "file";
+    user = "ovos";
+  };
+  environment.etc."nixos/ovos" = {
+    source = pkgs.copyPathToStore ../ovos;
+    mode = "file";
+    user = "ovos";
+  };
 }

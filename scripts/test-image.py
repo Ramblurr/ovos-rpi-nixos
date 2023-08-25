@@ -1,4 +1,25 @@
 #!/usr/bin/env python3
+# test-image.py
+#
+# Copyright (C) 2023 Casey Link
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Give this script a raw sd-card image file built with nix-build
+and it will extract the kernel, dtb, and init path from the image
+then boot a qemu virtual machine emulating a raspberry pi.
+"""
 import re
 import argparse
 import stat
@@ -236,12 +257,12 @@ def main():
         action="store_true",
         help="If true will not show the virtual machine's GUI console",
     )
-    parser.add_argument(
-        "--platform",
-        choices=["rpi3", "rpi4"],
-        default="rpi3",
-        help="Platform, either rpi3 or rpi4",
-    )
+    # parser.add_argument(
+    #    "--platform",
+    #    choices=["rpi3", "rpi4"],
+    #    default="rpi3",
+    #    help="Platform, either rpi3 or rpi4",
+    # )
     parser.add_argument(
         "--timeout", type=int, default=300, help="Timeout value in seconds"
     )
@@ -250,7 +271,7 @@ def main():
 
     image_name = args.image_name
     clean = args.clean
-    platform = args.platform
+    # platform = args.platform # TODO figure out how to emulate an rpi4
     timeout = args.timeout
     headless = args.headless
 
@@ -261,9 +282,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    """
-    systemctl is-active ovos-image-preload
-    sudo journalctl -xefu ovos-image-preload
-    systemctl status pod_ovos
-    """

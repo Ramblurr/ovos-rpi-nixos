@@ -38,13 +38,7 @@ arm|armel|armhf|arm64|armv[4-9]*l|aarch64)
   ;;
 *)
   echo " detected non-ARM architecture, enabling emulation"
-  set +e
-  if ./docker/build-nixos/aarch64-tester; then
-    WANTS_EMULATION=
-  else
-    WANTS_EMULATION=y
-  fi
-  set -e
+  WANTS_EMULATION=y
   ;;
 esac
 

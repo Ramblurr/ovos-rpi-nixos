@@ -56,13 +56,10 @@ jobs:
 
       - name: Rename iso
         run: |
-          set -ex
-          ls -al
+          set -e
           mkdir -p output
-          ls -al output
           rm -f output/*.img
           mv ./${{ steps.vars.outputs.build-output }} output/${{ steps.vars.outputs.iso-name }}
-          ls -al output
 
       - name: Cache Image
         id: cache-save
@@ -97,13 +94,10 @@ jobs:
           TAG_NAME: ${{needs.build-image.outputs.tag-name}}
           ISO_NAME: ${{needs.build-image.outputs.iso-name}}
         run: |
-          set -ex
-          ls -al
-          ls -al output
+          set -e
           sudo mkdir -p /mnt/rpi
           sudo chown -R $(id -u):$(id -g) /mnt/
           python scripts/test-image.py --headless --timeout 900 --clean output/$ISO_NAME || true
-          ls -al output
 
   release-image:
     permissions:
@@ -130,13 +124,9 @@ jobs:
 
       - name: Compress Image
         run: |
-          set -ex
+          set -e
           sudo apt-get update && sudo apt-get install -y xz-utils
-          ls -alh
-          ls -alh output
           xz -z -9 -T0 output/${{ needs.build-image.outputs.iso-name }}
-          ls -alh
-          ls -alh output
 
       - name: Create release with artifact
         uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5
