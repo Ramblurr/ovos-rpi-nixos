@@ -97,14 +97,17 @@ jobs:
           set -e
           sudo mkdir -p /mnt/rpi
           sudo chown -R $(id -u):$(id -g) /mnt/
-          python scripts/test-image.py --headless --timeout 900 --clean output/$ISO_NAME || true
+          # This checks if the image boots to the login prompt
+          # in the future we will add tests for OVOS services
+          python scripts/test-image.py --headless --timeout 900 --clean output/$ISO_NAME
 
   release-image:
     permissions:
       contents: write
     name: Release Image
-    #needs: boot-test
-    needs: build-image
+    needs:
+      - build-image
+      - boot-test
     if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:

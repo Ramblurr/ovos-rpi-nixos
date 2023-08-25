@@ -19,7 +19,6 @@
         Type = "simple";
       };
     };
-
     roc-send = lib.mkIf config.ovos.roc.send.enable {
       enable = true;
       description = "roc-send remote audio to a ovos instance";
