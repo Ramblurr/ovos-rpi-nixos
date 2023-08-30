@@ -5,7 +5,11 @@
   ...
 }: {
   imports = [
+    ./hardware.nix
     ./containers.nix
+    ./modules/roc.nix
+    #./audio/pulseaudio.nix
+    ./audio/pipewire.nix
   ];
   options = {
     # ovos.platform is a mkOption that can be one of rpi4 or rpi3
@@ -141,22 +145,37 @@
 
     boot.loader.grub.enable = false;
     # Enables the generation of /boot/extlinux/extlinux.conf
-    boot.loader.generic-extlinux-compatible.enable = true;
-    #boot.loader.raspberryPi.enable = true;
-    #boot.loader.raspberryPi.version = 4;
+    boot.loader.generic-extlinux-compatible.enable = lib.mkForce true;
+    boot.loader.raspberryPi = {
+      enable = false;
+      version = 4;
+      firmwareConfig = ''
+        dtoverlay=hifiberry-dacplusadc
+        dtparam=audio=off
+        force_eeprom_read=0
+      '';
+      #dtoverlay=vc4-kms-v3d,noaudio
+    };
 
     boot.kernelPackages =
       if config.ovos.platform == "rpi3"
       then lib.mkForce pkgs.linuxPackages_rpi3
       else lib.mkForce pkgs.linuxPackages_rpi4;
 
-    boot.initrd.availableKernelModules = ["usbhid" "usb_storage"];
+    boot.initrd.availableKernelModules = [
+      "usbhid"
+      "usb_storage"
+      #"vc4"
+      #"pcie_brcmstb" # required for the pcie bus to work
+      #"reset-raspberrypi" # required for vl805 firmware to load
+    ];
+
     boot.tmp.useTmpfs = true;
     boot.kernelParams = [
       # !!! Needed for the virtual console to work on the RPi 3, as the default of 16M doesn't seem to be enough.
       # If X.org behaves weirdly (I only saw the cursor) then try increasing this to 256M.
       # On a Raspberry Pi 4 with 4 GB, you should either disable this parameter or increase to at least 64M if you want the USB ports to work.
-      "cma=128M"
+      #"cma=128M"
       "console=tty0"
     ];
 
@@ -191,14 +210,10 @@
       # actual packages we need for ovos
       git
       alsa-utils
-      pipewire
-      wireplumber
-      pulseaudio
-      pulsemixer
-      roc-toolkit
-      openfec
       docker-client # for docker compose, it'll talk to the podman socket
       podman-compose
+      libraspberrypi
+      raspberrypi-eeprom
 
       # friendly sysadmin tools
       htop
@@ -207,6 +222,7 @@
       vim
       curl
       wget
+      jless
     ];
 
     documentation = {
@@ -222,20 +238,10 @@
         PermitRootLogin = lib.mkForce "prohibit-password";
       };
     };
-    security.sudo.wheelNeedsPassword = false;
-    security.rtkit.enable = false;
-    sound.enable = true;
-    hardware.pulseaudio.enable = pkgs.lib.mkForce false;
 
-    services.pipewire = {
-      enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true; # ?
-      pulse.enable = true;
-      jack.enable = false;
-      wireplumber.enable = true;
-      audio.enable = true;
-    };
+    security.sudo.wheelNeedsPassword = false;
+    sound.enable = true;
+
     security.pam.loginLimits = [
       {
         domain = "@audio";
@@ -269,64 +275,9 @@
       }
     ];
 
-    systemd.user.services = {
-      pipewire.wantedBy = ["default.target"];
-      wireplumber.wantedBy = ["default.target"];
-      pipewire-pulse = {
-        path = [pkgs.pulseaudio];
-        wantedBy = ["default.target"];
-      };
-    };
-    environment.etc."pipewire/pipewire.conf.d/100-user.conf" = {
-      text =
-        builtins.toJSON
-        {
-          "context.modules" = [
-            {
-              name = "libpipewire-module-rt";
-              args = {
-                "nice.level" = 20;
-                "rt.prio" = 88;
-                "rtportal.enabled" = false;
-                "rtkit.enabled" = false;
-                "rlimits.enabled" = true;
-              };
-              flags = ["ifexists" "nofail"];
-            }
-            {name = "libpipewire-module-protocol-native";}
-            {name = "libpipewire-module-profiler";}
-            {name = "libpipewire-module-spa-device-factory";}
-            {name = "libpipewire-module-spa-node-factory";}
-            # Config to make pipewire discover stuff around it with zeroconf.
-            {name = "libpipewire-module-link-factory";}
-            {name = "libpipewire-module-session-manager";}
-            {name = "libpipewire-module-zeroconf-discover";}
-            {name = "libpipewire-module-raop-discover";}
-            #{
-            #  name = "libpipewire-module-roc-sink";
-            #  args = {
-            #    "fec.code" = "disable";
-            #    "remote.ip" = "192.168.0.244";
-            #    "remote.source.port" = 10001;
-            #    "remote.repair.port" = 10002;
-            #    "sink.name" = "ROC Sink";
-            #    "sink.props" = {
-            #      "node.name" = "roc-sink";
-            #    };
-            #  };
-            #}
-          ];
-        };
-    };
-
     virtualisation.podman = {
       dockerSocket.enable = true;
       enable = true;
-    };
-
-    hardware = {
-      enableRedistributableFirmware = true;
-      firmware = [pkgs.wireless-regdb];
     };
 
     networking = {
@@ -354,7 +305,16 @@
         gid = 1000;
         name = "ovos";
       };
+      spi = {};
+      gpio = {};
     };
+
+    services.udev.extraRules = ''
+      SUBSYSTEM=="spidev", KERNEL=="spidev0.0", GROUP="spi", MODE="0660"
+      SUBSYSTEM=="bcm2835-gpiomem", KERNEL=="gpiomem", GROUP="gpio",MODE="0660"
+      SUBSYSTEM=="gpio", KERNEL=="gpiochip*", ACTION=="add", RUN+="${pkgs.bash}/bin/bash -c 'chown root:gpio  /sys/class/gpio/export /sys/class/gpio/unexport ; chmod 220 /sys/class/gpio/export /sys/class/gpio/unexport'"
+      SUBSYSTEM=="gpio", KERNEL=="gpio*", ACTION=="add",RUN+="${pkgs.bash}/bin/bash -c 'chown root:gpio /sys%p/active_low /sys%p/direction /sys%p/edge /sys%p/value ; chmod 660 /sys%p/active_low /sys%p/direction /sys%p/edge /sys%p/value'"
+    '';
     users.users = {
       ovos = {
         uid = 1000;
@@ -362,7 +322,7 @@
         name = "ovos";
         group = "ovos";
         isNormalUser = true;
-        extraGroups = ["wheel" "audio" "podman"];
+        extraGroups = ["wheel" "audio" "podman" "spi" "gpio"];
         hashedPassword = lib.mkIf config.ovos.password.enable config.ovos.password.password;
         openssh.authorizedKeys.keys =
           if config.ovos.sshKey != ""

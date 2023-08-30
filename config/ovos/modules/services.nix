@@ -52,7 +52,7 @@ with lib; let
     wants = ["network-online.target" "ovos-image-preload.service"];
     after = ["network-online.target" "ovos-image-preload.service"] ++ map (name: "${name}.service") opts.requires;
     bindsTo = map (name: "${name}.service") opts.requires;
-    enable = true;
+    enable = config.services.ovos.enable;
     unitConfig = {
       RequiresMountsFor = "%t/containers";
     };
@@ -267,12 +267,23 @@ in {
                   then ''
                     set +e
                     if ! ${pkgs.podman}/bin/podman image exists "${info.imageNameAndTag}"; then
-                      #${pkgs.podman}/bin/podman load -i "${info.imageFile}"
-                      ${pkgs.podman}/bin/podman pull "${info.imageNameAndTag}"
+                      echo "[❗] Loading image ${info.imageNameAndTag}"
+                      ${pkgs.podman}/bin/podman load -i "${info.imageFile}"
+                      echo "[✔] Loaded image successfully ${info.imageNameAndTag}"
                     fi
                     set -e
                   ''
-                  else ""
+                  else ''
+                    set +e
+                    if ! ${pkgs.podman}/bin/podman image exists "${info.imageNameAndTag}"; then
+                      echo "[❗] Pulling image ${info.imageNameAndTag}"
+                      ${pkgs.podman}/bin/podman pull "${info.imageNameAndTag}"
+                      echo "[✔] Pulled image successfully ${info.imageNameAndTag}"
+                    else
+                      echo "[➖] Image already exists, skipping ${info.imageNameAndTag}"
+                    fi
+                    set -e
+                  ''
               )
               imageInfoList)
             + ''
