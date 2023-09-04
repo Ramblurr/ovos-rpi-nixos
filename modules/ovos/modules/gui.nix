@@ -35,7 +35,7 @@ with lib; let
       --device /dev/dri \
       --device /dev/snd \
       --requires ovos_messagebus,ovos_gui_websocket,ovos_phal \
-      -e TZ=${config.ovos.timezone} \
+      -e TZ=${config.time.timeZone} \
       -e PULSE_SERVER=unix:/run/user/1000/pulse/native \
       -e XDG_SESSION_TYPE=wayland \
       -e QT_QPA_PLATFORM=wayland  \

@@ -43,11 +43,6 @@
       default = false;
       description = "Whether to install the ovos-gui";
     };
-    ovos.timezone = lib.mkOption {
-      type = lib.types.str;
-      default = "Europe/Berlin";
-      description = "The timezone to use for the system";
-    };
     ovos.sshKey = lib.mkOption {
       type = lib.types.str;
       default = "";
@@ -127,7 +122,6 @@
   };
   config = {
     system.stateVersion = "23.11";
-    time.timeZone = config.ovos.timezone;
 
     boot.loader.grub.enable = false;
     boot.loader.generic-extlinux-compatible.enable = lib.mkForce true;

@@ -9,7 +9,6 @@
   # DHCP is enabled and the default user / pass is ovos / ovos
   # (requires an rpi with ethernet, it will not connect to wifi)
   raspberry-pi.hardware.platform.type = "rpi4";
-  ovos.timezone = "Europe/Berlin";
   ovos.password.enable = true;
   ovos.gui.enable = false;
 }

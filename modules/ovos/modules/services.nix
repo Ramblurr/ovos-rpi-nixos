@@ -35,7 +35,7 @@ with lib; let
       --log-driver=journald \
       --security-opt label=disable \
       --pull ${pullPolicy} \
-      -e TZ=${config.ovos.timezone} \
+      -e TZ=${config.time.timeZone} \
       -v ${ovosTmp}:/tmp/mycroft \
   '';
   #--network host \
