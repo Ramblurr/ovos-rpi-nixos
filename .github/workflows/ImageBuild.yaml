@@ -15,7 +15,7 @@ jobs:
       iso-name: ${{ steps.vars.outputs.iso-name }}
       tag-name: ${{ steps.vars.outputs.tag-name }}
     steps:
-      - uses: actions/checkout@v3.6.0
+      - uses: actions/checkout@v4.0.0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -75,7 +75,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install QEMU and other dependencies
         run: |
@@ -111,7 +111,7 @@ jobs:
     if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Load Image Cache
         id: cache-restore
