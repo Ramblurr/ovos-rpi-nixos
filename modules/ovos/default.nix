@@ -12,12 +12,6 @@
     ./audio/pipewire.nix
   ];
   options = {
-    # ovos.platform is a mkOption that can be one of rpi4 or rpi3
-    ovos.platform = lib.mkOption {
-      type = lib.types.enum ["rpi3" "rpi4"];
-      default = "rpi4";
-      description = "The platform to build for";
-    };
     ovos.password.enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -132,35 +126,11 @@
     };
   };
   config = {
-    # Disable ZFS. It is problematic on the raspberry pi and anyways we don't need it.
-    nixpkgs.overlays = [
-      (final: super: {
-        zfs = super.zfs.overrideAttrs (_: {
-          meta.platforms = [];
-        });
-      })
-    ];
-    system.stateVersion = "23.05";
+    system.stateVersion = "23.11";
     time.timeZone = config.ovos.timezone;
 
     boot.loader.grub.enable = false;
-    # Enables the generation of /boot/extlinux/extlinux.conf
     boot.loader.generic-extlinux-compatible.enable = lib.mkForce true;
-    boot.loader.raspberryPi = {
-      enable = false;
-      version = 4;
-      firmwareConfig = ''
-        dtoverlay=hifiberry-dacplusadc
-        dtparam=audio=off
-        force_eeprom_read=0
-      '';
-      #dtoverlay=vc4-kms-v3d,noaudio
-    };
-
-    boot.kernelPackages =
-      if config.ovos.platform == "rpi3"
-      then lib.mkForce pkgs.linuxPackages_rpi3
-      else lib.mkForce pkgs.linuxPackages_rpi4;
 
     boot.initrd.availableKernelModules = [
       "usbhid"
@@ -178,14 +148,6 @@
       #"cma=128M"
       "console=tty0"
     ];
-
-    # File systems configuration for using the installer's partition layout
-    fileSystems = {
-      "/" = {
-        device = "/dev/disk/by-label/NIXOS_SD";
-        fsType = "ext4";
-      };
-    };
 
     swapDevices = [
       {
