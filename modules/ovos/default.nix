@@ -156,7 +156,7 @@
       }
     ];
     nix = {
-      gc = {
+      gc = lib.mkDefault {
         automatic = true;
         dates = "weekly";
         options = "--delete-older-than 7d";
@@ -196,8 +196,8 @@
 
     services.openssh = {
       enable = true;
-      settings = {
-        PermitRootLogin = lib.mkForce "prohibit-password";
+      settings = lib.mkDefault {
+        PermitRootLogin = "prohibit-password";
       };
     };
 
