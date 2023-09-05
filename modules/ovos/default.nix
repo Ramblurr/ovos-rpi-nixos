@@ -8,7 +8,6 @@
     ./hardware.nix
     ./containers.nix
     ./modules/roc.nix
-    #./audio/pulseaudio.nix
     ./audio/pipewire.nix
   ];
   options = {

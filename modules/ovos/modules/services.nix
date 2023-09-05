@@ -19,8 +19,6 @@ with lib; let
   ovosShare = "/home/ovos/ovos/share";
   xdgRuntimeDir = "/run/user/1000";
   pullPolicy = "missing";
-  pulseServer = "unix:/run/user/1000/pulse/native";
-  #pulseCookie = "/home/ovos/.config/pulse/cookie";
   PodIdFile = "%t/pod_ovos.pd-id";
   commonOpts = ''
     ${pkgs.podman}/bin/podman run \
@@ -84,12 +82,8 @@ with lib; let
               o = opts.withAudio;
               v = ''
                 --device /dev/snd \
-                -e PULSE_SERVER=${pulseServer} \
-                -v ${xdgRuntimeDir}/pulse:${xdgRuntimeDir}/pulse:ro \
                 -v ${xdgRuntimeDir}/pipewire-0:${xdgRuntimeDir}/pipewire-0:ro'';
             }
-            #-e PULSE_COOKIE=${pulseCookie} \
-            #-v ${pulseCookie}:${pulseCookie}:ro \
             {
               o = opts.withDBus;
               v = "-e DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus --volume /run/user/1000/bus:/run/user/1000/bus:ro";

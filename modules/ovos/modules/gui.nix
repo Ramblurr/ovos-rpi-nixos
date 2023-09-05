@@ -36,7 +36,7 @@ with lib; let
       --device /dev/snd \
       --requires ovos_messagebus,ovos_gui_websocket,ovos_phal \
       -e TZ=${config.time.timeZone} \
-      -e PULSE_SERVER=unix:/run/user/1000/pulse/native \
+      -v /run/user/1000/pipewire-0:/run/user/1000/pipewire-0:ro \
       -e XDG_SESSION_TYPE=wayland \
       -e QT_QPA_PLATFORM=wayland  \
       -e SDL_VIDEODRIVER=wayland \
@@ -44,7 +44,6 @@ with lib; let
       -v /home/ovos/ovos/config:/home/ovos/.config/mycroft:ro \
       -v /home/ovos/ovos/tmp:/tmp/mycroft \
       -v /run/user/1000:/run/user/1000:rw \
-      -v /run/user/1000/pulse:/run/user/1000/pulse:ro \
       -v /home/ovos/ovos/share:/home/ovos/.local/share/mycroft \
       --name=ovos_gui \
       --label ovos.service=ovos_gui \

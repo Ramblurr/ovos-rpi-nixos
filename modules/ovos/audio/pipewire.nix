@@ -10,7 +10,7 @@
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = false; # ?
-    pulse.enable = true;
+    pulse.enable = false;
     jack.enable = false;
     wireplumber.enable = true;
     audio.enable = true;
@@ -20,9 +20,6 @@
   systemd.user.services = {
     pipewire.wantedBy = ["default.target"];
     wireplumber.wantedBy = ["default.target"];
-    pipewire-pulse = {
-      wantedBy = ["default.target"];
-    };
   };
   environment.etc."pipewire/pipewire.conf.d/100-user.conf" = {
     text =
