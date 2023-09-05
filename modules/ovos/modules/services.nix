@@ -36,6 +36,7 @@ with lib; let
       --security-opt label=disable \
       --pull ${pullPolicy} \
       -e TZ=${config.time.timeZone} \
+      -e XDG_RUNTIME_DIR=${xdgRuntimeDir} \
       -v ${ovosTmp}:/tmp/mycroft \
   '';
   #--network host \
@@ -84,7 +85,8 @@ with lib; let
               v = ''
                 --device /dev/snd \
                 -e PULSE_SERVER=${pulseServer} \
-                -v ${xdgRuntimeDir}/pulse:${xdgRuntimeDir}/pulse:ro'';
+                -v ${xdgRuntimeDir}/pulse:${xdgRuntimeDir}/pulse:ro \
+                -v ${xdgRuntimeDir}/pipewire-0:${xdgRuntimeDir}/pipewire-0:ro'';
             }
             #-e PULSE_COOKIE=${pulseCookie} \
             #-v ${pulseCookie}:${pulseCookie}:ro \
@@ -259,6 +261,7 @@ in {
           description = "OVOS Image Preload";
           script =
             ''
+              FORCE_PULL=''${1:-"no"}
               echo "OVOS Image Preload Starting"
             ''
             + concatStringsSep "\n" (map (
@@ -275,7 +278,7 @@ in {
                   ''
                   else ''
                     set +e
-                    if ! ${pkgs.podman}/bin/podman image exists "${info.imageNameAndTag}"; then
+                    if ! ${pkgs.podman}/bin/podman image exists "${info.imageNameAndTag}" || [ "$FORCE_PULL" = "--update" ] ; then
                       echo "[❗] Pulling image ${info.imageNameAndTag}"
                       ${pkgs.podman}/bin/podman pull "${info.imageNameAndTag}"
                       echo "[✔] Pulled image successfully ${info.imageNameAndTag}"

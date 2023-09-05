@@ -68,50 +68,6 @@
         ];
       };
   };
-  #environment.etc."wireplumber/main.lua.d/51-disable-builtin-rpi-audio.lua".text = ''
-  #  rule = {
-  #    matches = {
-  #      {
-  #        { "node.name", "equals", "alsa_output.platform-bcm2835_audio.stereo-fallback" },
-  #      },
-  #    },
-  #    apply_properties = {
-  #      ["device.disabled"] = true,
-  #      ["node.description"] = "snd_rpi_builtin"
-  #    },
-  #  }
-
-  #  table.insert(alsa_monitor.rules,rule)
-  #'';
-
-  #environment.etc."wireplumber/main.lua.d/51-rename-devices.lua".text = ''
-  #  rule = {
-  #    matches = {
-  #      {
-  #        { "node.name", "equals", "alsa_output.platform-soc_sound.stereo-fallback" },
-
-  #      },
-  #    },
-  #    apply_properties = {
-  #        ["node.description"] = "snd_rpi_hifiberry_dacplus_sink"
-  #    },
-  #  }
-
-  #  table.insert(alsa_monitor.rules,rule)
-  #  rule2 = {
-  #    matches = {
-  #      {
-  #        { "node.name", "equals", "alsa_input.platform-soc_sound.stereo-fallback" },
-
-  #      },
-  #    },
-  #    apply_properties = {
-  #        ["node.description"] = "snd_rpi_hifiberry_dacplus_source"
-  #    },
-  #  }
-
-  #  table.insert(alsa_monitor.rules,rule2)
-  #'';
   environment.etc."wireplumber/policy.lua.d/50-endpoints-config.lua".text = ''
     default_policy.policy.roles = {
       ["Capture"] = {
