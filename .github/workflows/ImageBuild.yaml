@@ -132,7 +132,7 @@ jobs:
           xz -z -9 -T0 output/${{ needs.build-image.outputs.iso-name }}
 
       - name: Create release with artifact
-        uses: ncipollo/release-action@b36d9409a93051e059c8aa513ba47771bdb6927c
+        uses: ncipollo/release-action@7ce102b15b566708e0fb9173b83698ff44fb706d
         with:
           tag: "ovos-nix-${{needs.build-image.outputs.tag-name  }}"
           artifacts: "output/${{ needs.build-image.outputs.iso-name }}.xz"
