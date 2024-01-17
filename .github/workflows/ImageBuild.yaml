@@ -63,7 +63,7 @@ jobs:
 
       - name: Cache Image
         id: cache-save
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: output
           key: sd-image-${{ steps.vars.outputs.tag-name }}-${{ github.ref_name }}-${{ github.sha }}
@@ -84,7 +84,7 @@ jobs:
 
       - name: Load Image Cache
         id: cache-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: output
           key: sd-image-${{needs.build-image.outputs.tag-name}}-${{ github.ref_name }}-${{ github.sha }}
@@ -115,7 +115,7 @@ jobs:
 
       - name: Load Image Cache
         id: cache-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: output
           key: sd-image-${{needs.build-image.outputs.tag-name}}-${{ github.ref_name }}-${{ github.sha }}
