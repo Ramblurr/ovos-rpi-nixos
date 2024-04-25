@@ -15,7 +15,7 @@ jobs:
       iso-name: ${{ steps.vars.outputs.iso-name }}
       tag-name: ${{ steps.vars.outputs.tag-name }}
     steps:
-      - uses: actions/checkout@v4.1.3
+      - uses: actions/checkout@v4.1.4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
