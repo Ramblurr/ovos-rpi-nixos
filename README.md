@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> Archive Note: I've archived this repo because I've moved away from using NixOS on Raspberry PIs
+> If you are only doing software on an RPI, NixOS works fine. But if you want
+> to use hardware (GPIO, HATs, etc) NixOS is a royal PITA and frankly not
+> worth the time to make it try and work.
+
 # <img src='https://camo.githubusercontent.com/48b782bbddb51b97cf2971fda5817080075f7799/68747470733a2f2f7261772e6769746861636b2e636f6d2f466f7274417765736f6d652f466f6e742d417765736f6d652f6d61737465722f737667732f736f6c69642f636f67732e737667' width='50' height='50' style='vertical-align:bottom'/> Open Voice Operating System - NixOS Edition
 
 [![AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--v3--or--later-blue)](./LICENSE) [![ImageBuild](https://github.com/Ramblurr/ovos-rpi-nixos/actions/workflows/ImageBuild.yaml/badge.svg)](https://github.com/Ramblurr/ovos-rpi-nixos/actions)
